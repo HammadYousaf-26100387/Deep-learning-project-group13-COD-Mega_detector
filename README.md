@@ -10,24 +10,21 @@ A computer vision system for detecting and classifying big cats in camera trap i
 - [Datasets](#datasets)
 - [Methodology](#methodology)
 - [Deliverables](#deliverables)
-- [Implementation](#implementation)
-- [Results](#results)
-- [Future Work](#future-work)
-- [License](#license)
+
 
 ## Project Overview
 This project aims to improve wildlife detection systems with special focus on big cats (lions, tigers, leopards, cheetahs) in camera trap imagery. Originally targeting snow leopards, we expanded our scope due to data scarcity. Our work focuses on:
 
 - Evaluating and improving MegaDetector's performance on camouflaged animals
-- Leveraging specialized datasets (COD10K and LILA)
-- Developing robust detection models for conservation applications
+- Leveraging specialized datasets (COD10K)
+- Improving Mega detector v6 for camouflaged object detection.
 
 ## Key Objectives
 1. Evaluate SOTA MegaDetector performance on camouflaged wildlife
-2. Combine empty/non-empty camera trap images for improved training
-3. Experiment with camouflage-oriented datasets (COD10K)
-4. Implement YOLOv9-based detection system
-5. Improve localization accuracy through boundary learning
+2. improve SOTA MegaDetector performance on camouflaged wildlife
+3. Combine empty/non-empty cam/noncam for improved training
+4. finetune with camouflage-oriented datasets (COD10K)
+5. Using/training YOLOv9-based detection system using MegaDetector
 
 ## Datasets
 
@@ -35,7 +32,7 @@ This project aims to improve wildlife detection systems with special focus on bi
 - **10,000 images** with segmentation masks & object boundaries
 - **69 classes** including 4 big cat species
 - Focus on **camouflaged objects**
-- **Strengths**: Detailed annotations, camouflage focus
+- **Strengths**: Detailed annotations, camouflage focus, Exisiting bounding box documentations
 - **Limitations**: Sparse big cat samples, aquatic species noise
 
 ### LILA MetaDataset
@@ -44,26 +41,24 @@ This project aims to improve wildlife detection systems with special focus on bi
   - Snapshot Serengeti (16605 lion images)
   - Multiple other wildlife datasets
 - **Strengths**: Real-world camera trap diversity
-- **Limitations**: Sparse bounding box annotations
+- **Limitations**: Sparse bounding box annotations, sparsely labeled camouflaged imagery
 
 ## Methodology
 
-![Workflow Diagram](https://via.placeholder.com/800x400.png?text=Project+Workflow)
-
 1. **Data Curation**
    - Filter aquatic/non-relevant classes
-   - Combine empty/non-empty images
-   - Handle camouflage-specific challenges
+   - Filter coco-json file (to put data in trainable format)
+   - Made yolo label .txt file using the existing coco JSON file (to put data in trainable format) 
+   - Combine empty/non-empty images (empty yolo labels for empty images)
 
 2. **Model Architecture**
    - YOLOv9-e baseline
    - MegaDetector v6 integration
-   - Boundary-aware detection heads
 
 3. **Evaluation Metrics**
+   - True positive count
    - Intersection over Union (IoU)
    - Confidence score analysis
-   - False positive rate assessment
 
 ## Deliverables
 
@@ -77,19 +72,23 @@ This project aims to improve wildlife detection systems with special focus on bi
 - Confidence scores (mean: 0.5133 ± 0.2385)
 - **18.7%** high-confidence detections (≥0.8)
 - **40%** complete detection failures
+- **0.256** mean IOU score
 
-### Deliverable 4/5: Data Preparation
+### Deliverable 4: Data Preparation
 - Custom COCO JSON/YOLO TXT conversion
 - Class mapping:
   - `0`: Animal
   - `1`: Human
 - Train/Test/Val split: 70/20/10
 
-### Deliverable 6: Model Training
-- YOLOv9-e trained for 40 epochs
+
+### Deliverable 5/6: Model Training and results
+- Mega detector (YOLOv9-e) trained for 40 epochs
 - Hyperparameters:
-  ```yaml
-  lr0: 0.01
-  weight_decay: 0.0005
+  lr0: 0.001
   batch: 16
-  imgsz: 640
+  imgsz: 512
+- Results: 
+    IoU Improvement: 0.256 → 0.281 (+9.7%)
+    box loss Improvement: 1.8 -> 1.4
+    as well as improving the cls and dfl loss
